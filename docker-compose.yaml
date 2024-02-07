@@ -11,4 +11,20 @@ services:
     volumes:
       - ./server/app:/app
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py wait_for_db &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - ./env/server.env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    env_file:
+      - ./env/db.env
+
+volumes:
+  dev-db-data:
